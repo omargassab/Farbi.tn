@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<h1 class="text-3xl font-semibold mb-8 text-gray-800">Admin Dashboard</h1>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <a href="{{ url_for('admin_pending_designs') }}" class="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200">
+        <h2 class="text-xl font-semibold text-indigo-600 mb-2"><i class="fas fa-hourglass-half mr-2"></i> Pending Designs</h2>
+        <p class="text-gray-600">Review and approve or reject new design submissions.</p>
+        <p class="text-2xl font-bold text-indigo-500 mt-3">{{ pending_count or 0 }}</p>
+    </a>
+
+    <a href="{{ url_for('admin_orders') }}" class="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200">
+        <h2 class="text-xl font-semibold text-blue-600 mb-2"><i class="fas fa-box-open mr-2"></i> Manage Orders</h2>
+        <p class="text-gray-600">View and update the status of customer orders.</p>
+         <p class="text-2xl font-bold text-blue-500 mt-3">{{ order_count or 0 }}</p>
+    </a>
+
+     <a href="{{ url_for('admin_users') }}" class="block p-6 bg-white rounded-lg shadow hover:shadow-md transition-shadow duration-200">
+        <h2 class="text-xl font-semibold text-green-600 mb-2"><i class="fas fa-users mr-2"></i> Manage Users</h2>
+        <p class="text-gray-600">View and manage registered users and roles.</p>
+         <p class="text-2xl font-bold text-green-500 mt-3">{{ user_count or 0 }}</p>
+    </a>
+
+</div>
+{% endblock %}

@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}{{ design.title }}{% endblock %}
+{% block content %}
+<div class="bg-white p-6 md:p-8 rounded-lg shadow-lg">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div> {# Image Column #}
+            <div class="aspect-square bg-gray-200 rounded-lg flex items-center justify-center mb-4">
+                 {% if design.image_path %} <img src="{{ url_for('uploaded_file', filename=design.image_path) }}" alt="{{ design.title }} Preview" class="object-contain w-full h-full rounded-lg">
+                 {% else %} <span class="text-gray-500 text-lg">No Preview Available</span> {% endif %}
+            </div>
+        </div>
+        <div> {# Details Column #}
+            <div class="flex justify-between items-start mb-2">
+                 <h1 class="text-3xl font-bold text-gray-900">{{ design.title }}</h1>
+                 {% if design.status == 'approved' %} {# Favorite Button #}
+                    {% if current_user.is_authenticated %}
+                        {% if is_favorite %} <form action="{{ url_for('remove_favorite', design_id=design.id) }}" method="POST" class="inline"><button type="submit" class="favorite-btn active text-2xl" title="Remove from Favorites"><i class="fas fa-heart"></i></button></form>
+                        {% else %} <form action="{{ url_for('add_favorite', design_id=design.id) }}" method="POST" class="inline"><button type="submit" class="favorite-btn text-2xl" title="Add to Favorites"><i class="far fa-heart"></i></button></form> {% endif %}
+                    {% else %} <a href="{{ url_for('login', next=request.url) }}" class="favorite-btn text-2xl" title="Login to Favorite"><i class="far fa-heart"></i></a> {% endif %}
+                 {% endif %}
+            </div>
+            {# Link designer name to profile #}
+            <p class="text-sm text-gray-500 mb-4">By <a href="{{ url_for('profile', username=design.designer.username) }}" class="text-indigo-600 hover:underline">{{ design.designer.username }}</a></p>
+            {% if design.status == 'pending' %} <p class="mb-4 p-2 rounded bg-yellow-100 text-yellow-800 text-sm border border-yellow-200">Status: Pending Approval</p>
+            {% elif design.status == 'rejected' %} <p class="mb-4 p-2 rounded bg-red-100 text-red-800 text-sm border border-red-200">Status: Rejected</p>
+            {% endif %}
+            <p class="text-gray-700 mb-6">{{ design.description or 'No description provided.' }}</p>
+            <div class="mb-6">
+                <span class="text-3xl font-bold text-indigo-600">{{ "%.2f TND"|format(final_price) }}</span>
+                <span class="text-sm text-gray-500 ml-2">(Price includes printing & delivery)</span>
+            </div>
+
+            {# Add to Cart Button (Replaces Order Form) #}
+            {% if design.status == 'approved' %}
+            <form action="{{ url_for('add_to_cart', design_id=design.id) }}" method="POST">
+                 <button type="submit" class="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700 transition duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 flex items-center justify-center">
+                    <i class="fas fa-cart-plus mr-2"></i> Add to Cart
+                 </button>
+            </form>
+            {% else %}
+             <button disabled class="w-full bg-gray-400 text-white px-6 py-3 rounded-lg font-semibold cursor-not-allowed flex items-center justify-center">
+                 <i class="fas fa-times-circle mr-2"></i> Not Available
+             </button>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

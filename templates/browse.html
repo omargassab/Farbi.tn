@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Browse Designs{% endblock %}
+{% block content %}
+<h1 class="text-3xl font-semibold mb-8 text-gray-800">All Approved Designs</h1>
+{% if designs %}
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {% for design in designs %}
+    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 relative">
+        <a href="{{ url_for('design_detail', design_id=design.id) }}">
+            <div class="aspect-square bg-gray-200 flex items-center justify-center">
+                 {% if design.image_path %} <img src="{{ url_for('uploaded_file', filename=design.image_path) }}" alt="{{ design.title }} Preview" class="object-cover w-full h-full">
+                {% else %} <span class="text-gray-500 text-sm">No Preview</span> {% endif %}
+            </div>
+        </a>
+        <div class="p-4">
+             <a href="{{ url_for('design_detail', design_id=design.id) }}"> <h3 class="font-semibold text-lg mb-1 truncate">{{ design.title }}</h3> </a>
+             {# Link designer name to profile #}
+             <p class="text-sm text-gray-500 mb-2">By <a href="{{ url_for('profile', username=design.designer.username) }}" class="text-indigo-600 hover:underline">{{ design.designer.username }}</a></p>
+             <a href="{{ url_for('design_detail', design_id=design.id) }}"> <p class="text-gray-700 mb-3 text-sm truncate">{{ design.description or 'No description available.' }}</p> </a>
+            <div class="flex justify-between items-center">
+                <span class="font-bold text-indigo-600">{{ "%.2f TND"|format(design.royalty_amount + 13.0) }}</span> {# Example Price #}
+                {% if current_user.is_authenticated %}
+                    {% if current_user.is_favorite(design) %} <form action="{{ url_for('remove_favorite', design_id=design.id) }}" method="POST" class="inline"><button type="submit" class="favorite-btn active" title="Remove from Favorites"><i class="fas fa-heart text-lg"></i></button></form>
+                    {% else %} <form action="{{ url_for('add_favorite', design_id=design.id) }}" method="POST" class="inline"><button type="submit" class="favorite-btn" title="Add to Favorites"><i class="far fa-heart text-lg"></i></button></form> {% endif %}
+                {% else %} <a href="{{ url_for('login', next=request.url) }}" class="favorite-btn" title="Login to Favorite"><i class="far fa-heart text-lg"></i></a> {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %} <p class="text-gray-600">No designs found.</p> {% endif %}
+{% endblock %}

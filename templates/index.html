@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Homepage{% endblock %}
+{% block content %}
+<section class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg shadow-xl p-8 md:p-12 mb-12 text-center">
+    <h1 class="text-3xl md:text-5xl font-bold mb-4">Farbi.tn: 3D Printing Made Local</h1>
+    <p class="text-lg md:text-xl mb-6">Discover unique designs from Tunisian creators. We print and deliver via COD.</p>
+    <div class="flex justify-center space-x-4">
+        <a href="{{ url_for('browse') }}" class="bg-white text-indigo-700 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition duration-200">Explore Designs</a>
+        {% if current_user.is_authenticated and current_user.is_designer %}
+            <a href="{{ url_for('upload_design') }}" class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-indigo-700 transition duration-200">Upload Your Design</a>
+        {% elif not current_user.is_authenticated %}
+             <a href="{{ url_for('register') }}" class="bg-transparent border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-indigo-700 transition duration-200">Become a Designer</a>
+        {% endif %}
+    </div>
+</section>
+
+<section class="mb-12">
+    <h2 class="text-2xl font-semibold mb-6 text-gray-700">Featured Designs</h2>
+    {% if featured_designs %}
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        {% for design in featured_designs %}
+        <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 relative">
+            <a href="{{ url_for('design_detail', design_id=design.id) }}">
+                <div class="aspect-square bg-gray-200 flex items-center justify-center">
+                    {% if design.image_path %} <img src="{{ url_for('uploaded_file', filename=design.image_path) }}" alt="{{ design.title }} Preview" class="object-cover w-full h-full">
+                    {% else %} <span class="text-gray-500 text-sm">No Preview</span> {% endif %}
+                </div>
+            </a>
+            <div class="p-4">
+                 <a href="{{ url_for('design_detail', design_id=design.id) }}"> <h3 class="font-semibold text-lg mb-1 truncate">{{ design.title }}</h3> </a>
+                 {# Link designer name to profile #}
+                 <p class="text-sm text-gray-500 mb-2">By <a href="{{ url_for('profile', username=design.designer.username) }}" class="text-indigo-600 hover:underline">{{ design.designer.username }}</a></p>
+                 <a href="{{ url_for('design_detail', design_id=design.id) }}"> <p class="text-gray-700 mb-3 text-sm truncate">{{ design.description or 'No description available.' }}</p> </a>
+                <div class="flex justify-between items-center">
+                    <span class="font-bold text-indigo-600">{{ "%.2f TND"|format(design.royalty_amount + 13.0) }}</span> {# Example Price #}
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.is_favorite(design) %} <form action="{{ url_for('remove_favorite', design_id=design.id) }}" method="POST" class="inline"><button type="submit" class="favorite-btn active" title="Remove from Favorites"><i class="fas fa-heart text-lg"></i></button></form>
+                        {% else %} <form action="{{ url_for('add_favorite', design_id=design.id) }}" method="POST" class="inline"><button type="submit" class="favorite-btn" title="Add to Favorites"><i class="far fa-heart text-lg"></i></button></form> {% endif %}
+                    {% else %} <a href="{{ url_for('login', next=request.url) }}" class="favorite-btn" title="Login to Favorite"><i class="far fa-heart text-lg"></i></a> {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %} <p class="text-gray-600">No featured designs available yet.</p> {% endif %}
+</section>
+{% endblock %}

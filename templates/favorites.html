@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}My Favorites{% endblock %}
+{% block content %}
+<h1 class="text-3xl font-semibold mb-8 text-gray-800">My Favorite Designs</h1>
+
+{% if designs %}
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+    {% for design in designs %}
+    <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-200 relative">
+        <a href="{{ url_for('design_detail', design_id=design.id) }}">
+            <div class="aspect-square bg-gray-200 flex items-center justify-center">
+                 {% if design.image_path %}
+                    <img src="{{ url_for('uploaded_file', filename=design.image_path) }}" alt="{{ design.title }} Preview" class="object-cover w-full h-full">
+                {% else %}
+                    <span class="text-gray-500 text-sm">No Preview</span>
+                {% endif %}
+            </div>
+        </a>
+        <div class="p-4">
+             <a href="{{ url_for('design_detail', design_id=design.id) }}">
+                <h3 class="font-semibold text-lg mb-1 truncate">{{ design.title }}</h3>
+                <p class="text-sm text-gray-500 mb-2">By <span class="text-indigo-600 hover:underline">{{ design.designer.username }}</span></p>
+                <p class="text-gray-700 mb-3 text-sm truncate">{{ design.description or 'No description available.' }}</p>
+             </a>
+            <div class="flex justify-between items-center">
+                <span class="font-bold text-indigo-600">{{ "%.2f TND"|format(design.royalty_amount + 13.0) }}</span> {# Example Price #}
+                {# Favorite Button (Always show remove on this page) #}
+                <form action="{{ url_for('remove_favorite', design_id=design.id) }}" method="POST" class="inline">
+                    <button type="submit" class="favorite-btn active" title="Remove from Favorites"><i class="fas fa-heart text-lg"></i></button>
+                </form>
+                {# End Favorite Button Logic #}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-gray-600 text-center mt-10">You haven't added any designs to your favorites yet.</p>
+<p class="text-center mt-4"><a href="{{ url_for('browse') }}" class="text-indigo-600 hover:underline">Browse designs</a> to find some you like!</p>
+{% endif %}
+{% endblock %}

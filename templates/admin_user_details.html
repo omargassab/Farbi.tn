@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}Admin User Details: {{ user.username }}{% endblock %}
+{% block content %}
+<div class="bg-white p-6 md:p-8 rounded-lg shadow-lg max-w-2xl mx-auto">
+    <div class="flex justify-between items-start mb-6 border-b pb-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ user.username }}</h1>
+            <p class="text-sm text-gray-500 mt-1">{{ user.email }}</p>
+            <p class="text-xs text-gray-400 mt-1">User ID: {{ user.id }} | Joined: {{ user.join_date.strftime('%Y-%m-%d') if user.join_date else 'N/A' }}</p>
+             <p class="mt-2"><a href="{{ url_for('profile', username=user.username) }}" class="text-indigo-600 hover:underline text-sm" target="_blank">View Public Profile <i class="fas fa-external-link-alt text-xs ml-1"></i></a></p> {# Link to profile #}
+        </div>
+    </div>
+    <form action="{{ url_for('admin_update_user_roles', user_id=user.id) }}" method="POST">
+        <h2 class="text-xl font-semibold mb-4 text-gray-800">Manage Roles</h2>
+        <div class="space-y-4">
+            <div> <label class="flex items-center cursor-pointer"> <input type="checkbox" name="is_designer" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 h-5 w-5" {% if user.is_designer %}checked{% endif %}> <span class="ml-3 text-sm text-gray-700 font-medium">Designer Role</span> </label> <p class="text-xs text-gray-500 ml-8">Allows user to upload designs.</p> </div>
+            <div> <label class="flex items-center {% if user.id == current_user.id %} cursor-not-allowed opacity-70 {% else %} cursor-pointer {% endif %}"> <input type="checkbox" name="is_admin" class="rounded border-gray-300 text-purple-600 shadow-sm focus:border-purple-300 focus:ring focus:ring-purple-200 focus:ring-opacity-50 h-5 w-5" {% if user.is_admin %}checked{% endif %} {% if user.id == current_user.id %}disabled title="Cannot remove your own admin role"{% endif %}> <span class="ml-3 text-sm text-gray-700 font-medium">Administrator Role</span> </label> <p class="text-xs text-gray-500 ml-8">Grants access to all admin areas.</p> {% if user.id == current_user.id %} <p class="text-xs text-red-600 ml-8 mt-1">You cannot revoke your own admin status.</p> {% endif %} </div>
+        </div>
+        <div class="mt-6 border-t pt-5"> <button type="submit" class="px-5 py-2 rounded-lg text-sm font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition duration-150 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"> Save Role Changes </button> </div>
+    </form>
+    <div class="mt-8 border-t pt-6"> <a href="{{ url_for('admin_users') }}" class="text-indigo-600 hover:text-indigo-800 text-sm"> <i class="fas fa-arrow-left mr-1"></i> Back to All Users </a> </div>
+</div>
+{% endblock %}

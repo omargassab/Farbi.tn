@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Admin - Manage Users{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-8"> <h1 class="text-3xl font-semibold text-gray-800">Manage Users</h1> </div>
+{% if users %}
+<div class="bg-white shadow-md rounded-lg overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50"> <tr> <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th> <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th> <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th> <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Designer?</th> <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Admin?</th> <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th> </tr> </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for user in users %} <tr class="{% if user.id == current_user.id %} bg-indigo-50 {% endif %}">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ user.id }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"> <a href="{{ url_for('profile', username=user.username) }}" class="hover:underline" target="_blank">{{ user.username }}</a> </td> {# Link to profile #}
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ user.email }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-center"> {% if user.is_designer %} <i class="fas fa-check-circle text-green-500"></i> {% else %} <i class="fas fa-times-circle text-gray-400"></i> {% endif %} </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-center"> {% if user.is_admin %} <i class="fas fa-user-shield text-purple-600"></i> {% else %} <i class="fas fa-times-circle text-gray-400"></i> {% endif %} </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"> <a href="{{ url_for('admin_user_details', user_id=user.id) }}" class="text-indigo-600 hover:text-indigo-900">Edit Roles</a> </td>
+            </tr> {% endfor %}
+        </tbody>
+    </table>
+</div>
+{# Pagination (remains same) #}
+{% if pagination and (pagination.has_prev or pagination.has_next) %} <nav class="mt-6 flex items-center justify-between border-t border-gray-200 px-4 sm:px-0"> <div class="flex w-0 flex-1"> {% if pagination.has_prev %} <a href="{{ url_for('admin_users', page=pagination.prev_num) }}" class="inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"> <i class="fas fa-arrow-left mr-3 h-5 w-5 text-gray-400"></i> Previous </a> {% endif %} </div> <div class="hidden md:flex"> {% for page_num in pagination.iter_pages() %} {% if page_num %} {% if page_num != pagination.page %} <a href="{{ url_for('admin_users', page=page_num) }}" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">{{ page_num }}</a> {% else %} <a href="#" class="inline-flex items-center border-t-2 border-indigo-500 px-4 pt-4 text-sm font-medium text-indigo-600" aria-current="page">{{ page_num }}</a> {% endif %} {% else %} <span class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-gray-500">...</span> {% endif %} {% endfor %} </div> <div class="flex w-0 flex-1 justify-end"> {% if pagination.has_next %} <a href="{{ url_for('admin_users', page=pagination.next_num) }}" class="inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"> Next <i class="fas fa-arrow-right ml-3 h-5 w-5 text-gray-400"></i> </a> {% endif %} </div> </nav> {% endif %}
+{% else %} <p class="text-gray-600 text-center mt-10">No users found.</p> {% endif %}
+{% endblock %}

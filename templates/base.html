@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Farbi.tn{% endblock %} - 3D Printing Tunisia</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .nav-link { @apply text-gray-600 hover:text-indigo-600 transition duration-150 ease-in-out; }
+        .nav-button { @apply px-4 py-2 rounded-lg text-sm font-medium transition duration-150 ease-in-out; }
+        .nav-button-primary { @apply nav-button bg-indigo-600 text-white hover:bg-indigo-700; }
+        .nav-button-secondary { @apply nav-button bg-green-500 text-white hover:bg-green-600; }
+        .nav-button-logout { @apply nav-button bg-red-500 text-white hover:bg-red-600; }
+        .favorite-btn { background: none; border: none; cursor: pointer; padding: 0.25rem; color: #9ca3af; transition: color 0.2s ease-in-out; }
+        .favorite-btn.active { color: #ef4444; } .favorite-btn:hover { color: #f87171; } .favorite-btn.active:hover { color: #dc2626; }
+        .cart-badge { @apply absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 flex flex-col min-h-screen">
+
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="{{ url_for('index') }}" class="text-2xl font-bold text-indigo-600">Farbi.tn</a>
+            <div class="flex items-center space-x-4">
+                <a href="{{ url_for('browse') }}" class="nav-link hidden md:inline">Browse</a>
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('list_favorites') }}" class="nav-link hidden md:inline" title="My Favorites"><i class="fas fa-heart"></i></a>
+                    <a href="{{ url_for('profile', username=current_user.username) }}" class="nav-link hidden md:inline" title="My Profile"><i class="fas fa-user"></i></a>
+                    <a href="{{ url_for('order_history') }}" class="nav-link hidden md:inline" title="Order History"><i class="fas fa-history"></i></a>
+                    {% if current_user.is_designer %} <a href="{{ url_for('upload_design') }}" class="nav-button-secondary hidden md:inline">Upload</a> {% endif %}
+                    {% if current_user.is_admin %} <a href="{{ url_for('admin_dashboard') }}" class="nav-link hidden md:inline font-semibold text-purple-600">Admin</a> {% endif %}
+                    <span class="text-gray-700 text-sm hidden lg:inline">Hi, {{ current_user.username }}!</span>
+                    <a href="{{ url_for('logout') }}" class="nav-button-logout">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}" class="nav-button-primary">Login</a>
+                    <a href="{{ url_for('register') }}" class="nav-link">Register</a>
+                {% endif %}
+                 <a href="{{ url_for('view_cart') }}" class="nav-link relative" title="Shopping Cart">
+                    <i class="fas fa-shopping-cart text-xl"></i>
+                    {% if cart_item_count > 0 %} <span class="cart-badge">{{ cart_item_count }}</span> {% endif %}
+                 </a>
+                 <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-indigo-600 focus:outline-none"> <i class="fas fa-bars text-xl"></i> </button>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container mx-auto px-4 pt-4 w-full max-w-4xl"> {# Flash Messages Container #}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %} {% for category, message in messages %}
+                    <div class="p-4 mb-4 text-sm rounded-lg shadow {% if category == 'danger' %} bg-red-100 text-red-800 border border-red-200 {% elif category == 'success' %} bg-green-100 text-green-800 border border-green-200 {% elif category == 'warning' %} bg-yellow-100 text-yellow-800 border border-yellow-200 {% else %} bg-blue-100 text-blue-800 border border-blue-200 {% endif %}" role="alert">
+                        <i class="fas {% if category == 'danger' %}fa-exclamation-triangle{% elif category == 'success' %}fa-check-circle{% elif category == 'warning' %}fa-exclamation-circle{% else %}fa-info-circle{% endif %} mr-2"></i> {{ message }}
+                    </div>
+            {% endfor %} {% endif %}
+        {% endwith %}
+    </div>
+
+    <main class="container mx-auto px-4 py-8 flex-grow"> {% block content %}{% endblock %} </main>
+
+    <footer class="bg-gray-800 text-gray-300 mt-auto"> <div class="container mx-auto px-4 py-8 text-center"> <p class="text-sm">&copy; {{ now().year }} Farbi.tn. All rights reserved.</p> </div> </footer>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

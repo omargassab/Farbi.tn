@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Admin - Manage Orders{% endblock %}
+{% block content %}
+<div class="flex justify-between items-center mb-8"> <h1 class="text-3xl font-semibold text-gray-800">Manage Orders</h1> </div>
+{% if orders %}
+<div class="bg-white shadow-md rounded-lg overflow-x-auto">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50"> <tr> <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th> <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th> <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th> <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Design</th> <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total (TND)</th> <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th> <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th> </tr> </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for order in orders %} <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#{{ order.id }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ order.order_date.strftime('%Y-%m-%d') }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ order.customer_name }}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 truncate max-w-xs" title="{{ order.design.title }}"> <a href="{{ url_for('design_detail', design_id=order.design_id) }}" class="hover:underline" target="_blank"> {{ order.design.title }} (#{{ order.design_id }}) </a> </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">{{ "%.2f"|format(order.total_price) }}</td>
+                <td class="px-6 py-4 whitespace-nowrap"> <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {% if order.status == 'delivered' %} bg-green-100 text-green-800 {% elif order.status == 'cancelled' or order.status == 'failed_delivery' %} bg-red-100 text-red-800 {% elif order.status == 'out_for_delivery' %} bg-blue-100 text-blue-800 {% elif order.status == 'printing' or order.status == 'packaging' %} bg-yellow-100 text-yellow-800 {% else %} bg-gray-100 text-gray-800 {% endif %}"> {{ order.status.replace('_', ' ')|capitalize }} </span> </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium"> <a href="{{ url_for('admin_order_details', order_id=order.id) }}" class="text-indigo-600 hover:text-indigo-900">View Details</a> </td>
+            </tr> {% endfor %}
+        </tbody>
+    </table>
+</div>
+{# Pagination (remains same) #}
+{% if pagination and (pagination.has_prev or pagination.has_next) %} <nav class="mt-6 flex items-center justify-between border-t border-gray-200 px-4 sm:px-0"> <div class="flex w-0 flex-1"> {% if pagination.has_prev %} <a href="{{ url_for('admin_orders', page=pagination.prev_num) }}" class="inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"> <i class="fas fa-arrow-left mr-3 h-5 w-5 text-gray-400"></i> Previous </a> {% endif %} </div> <div class="hidden md:flex"> {% for page_num in pagination.iter_pages() %} {% if page_num %} {% if page_num != pagination.page %} <a href="{{ url_for('admin_orders', page=page_num) }}" class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">{{ page_num }}</a> {% else %} <a href="#" class="inline-flex items-center border-t-2 border-indigo-500 px-4 pt-4 text-sm font-medium text-indigo-600" aria-current="page">{{ page_num }}</a> {% endif %} {% else %} <span class="inline-flex items-center border-t-2 border-transparent px-4 pt-4 text-sm font-medium text-gray-500">...</span> {% endif %} {% endfor %} </div> <div class="flex w-0 flex-1 justify-end"> {% if pagination.has_next %} <a href="{{ url_for('admin_orders', page=pagination.next_num) }}" class="inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700"> Next <i class="fas fa-arrow-right ml-3 h-5 w-5 text-gray-400"></i> </a> {% endif %} </div> </nav> {% endif %}
+{% else %} <p class="text-gray-600 text-center mt-10">No orders found.</p> {% endif %}
+{% endblock %}
